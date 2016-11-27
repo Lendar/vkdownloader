@@ -57,6 +57,7 @@ try:
 except ImportError:
     pass
 
+subParsers.required = True
 args = topParser.parse_args()
 
 vk = VkDownloader()
