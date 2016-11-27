@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 # PYTHON_ARGCOMPLETE_OK
 
 # Copyright 2013 Alexey Kardapoltsev
@@ -24,7 +24,7 @@ def process_music(args):
     vk.load(args.user, args.dest, args.clean)
   elif args.action == "list":
     vk.show(args.user)
-  elif args.action == "play": 
+  elif args.action == "play":
     vk.play(args.user)
   else:
     print("unknown action")

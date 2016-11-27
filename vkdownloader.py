@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
- 
+
 import webbrowser
 import pickle
 import json
@@ -54,7 +54,7 @@ class VkDownloader:
         token, user_id = self.auth()
         self.access_token = token
         self.user_id = user_id
-     
+
     def get_saved_auth_params(self):
         access_token = None
         user_id = None
@@ -69,8 +69,8 @@ class VkDownloader:
         except IOError:
             pass
         return access_token, user_id
-     
-     
+
+
     def save_auth_params(self, access_token, expires_in, user_id):
         td = timedelta(seconds=int(expires_in))
         #if we got offline token expires_in will be 0, so set expires in 5 years
@@ -82,8 +82,8 @@ class VkDownloader:
             pickle.dump(access_token, output)
             pickle.dump(expires, output)
             pickle.dump(user_id, output)
-     
-     
+
+
     def get_auth_params(self):
         auth_url = ("https://oauth.vk.com/authorize?client_id={app_id}"
             "&scope=audio,friends,offline&redirect_uri=http://oauth.vk.com/blank.html"
@@ -96,8 +96,8 @@ class VkDownloader:
         self.save_auth_params(aup['access_token'][0], aup['expires_in'][0],
             aup['user_id'][0])
         return aup['access_token'][0], aup['user_id'][0]
-     
-     
+
+
     def get_tracks_metadata(self, user_id):
         url = "audio.get.json?uid={uid}".format(uid = user_id)
         return self._call_api(url)
@@ -107,7 +107,7 @@ class VkDownloader:
         url = "audio.getAlbums.json?uid={uid}&count=100".format(uid = user_id)
         return self._call_api(url)[1:] # drop first element since it's a count of user albums
 
-     
+
     def get_track_full_name(self, t_data):
         return self._get_track_name(t_data) + ".mp3"
 
@@ -122,7 +122,7 @@ class VkDownloader:
         full_name = re.sub(' +', ' ', full_name)
         return full_name
 
-     
+
     def download_track(self, url, dest, name):
         path = join(dest, name)
 
@@ -134,7 +134,7 @@ class VkDownloader:
             except Exception as e:
                 print("error downloading {}: {}".format(name, str(e)))
                 pass
-    
+
 
     def auth(self):
         access_token, current_user_id = self.get_saved_auth_params()
@@ -143,13 +143,13 @@ class VkDownloader:
             access_token, user_id = self.get_auth_params()
         return access_token, current_user_id
 
-		
+
     def get_friends(self, user_id):
         url = "friends.get.json?fields=uid,first_name,last_name&uid={uid}".format(
                 uid = user_id or self.user_id)
         return self._call_api(url)
-      
-    
+
+
     def show_friends(self, user_id):
       friends = self.get_friends(user_id)
       for f in friends:
@@ -162,7 +162,7 @@ class VkDownloader:
 
         total = len(tracks)
         print("{} has {} tracks".format(user or self.user_id, total))
-    
+
         for i, t in enumerate(tracks):
             print(self.get_track_full_name(t))
 
@@ -180,7 +180,7 @@ class VkDownloader:
 
         total = len(tracks)
         print("Found {} tracks for {}".format(total, uid))
-    
+
         for i, t in enumerate(tracks):
             t_name = self.get_track_full_name(t)
             print("Downloading {} of {}: {}".format(i + 1, total, t_name))
@@ -219,7 +219,7 @@ class VkDownloader:
         for t in tracks:
             playlist.append("#EXTINF: {},{}".format(t['duration'], self._get_track_name(t)))
             playlist.append(t['url'] + "\n")
-        
+
         return playlist
 
 
@@ -235,7 +235,7 @@ class VkDownloader:
         playlist = self._create_playlist(tracks)
         playlist_file = self.save_playlist(playlist, tempfile.mkstemp()[1])
         call(["mplayer", "-playlist", playlist_file])
-        
+
 
     def _call_api(self, req):
         self.auth()
