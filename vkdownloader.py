@@ -167,7 +167,7 @@ class VkDownloader:
             print(self.get_track_full_name(t))
 
 
-    def load(self, user, path, clean = False):
+    def load(self, user, path):
         access_token, current_user_id = self.auth()
         uid = user or self.user_id
 
@@ -191,24 +191,7 @@ class VkDownloader:
 
             self.download_track(t['url'], t_dest, t_name)
 
-        if clean:
-            self._clean(tracks, albums, path)
-            
         print("All music is up to date")
-     
-
-    def _clean(self, tracks, albums, path):
-        names = set(map((lambda t: self.get_track_full_name(t)), tracks))
-        album_names = set(albums.values())
-        files = os.listdir(path)
-        for f in files:
-            if f not in names and os.path.isfile(join(path, f)):
-                print("Deleting {}".format(f))
-                os.remove(join(path, f))
-            elif f not in album_names and not isfile(join(path, f)):
-                print("Deleting album {}".format(f))
-                shutil.rmtree(join(path, f))
-                
 
 
     def _create_playlist(self, tracks):
