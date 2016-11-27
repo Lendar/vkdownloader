@@ -103,6 +103,11 @@ class VkDownloader:
         return self._call_api(url)
 
 
+    def get_post_tracks_metadata(self, post_id):
+        url = "wall.getById.json?posts={post_id}".format(post_id = post_id)
+        return self._call_api(url)
+
+
     def get_albums(self, user_id):
         url = "audio.getAlbums.json?uid={uid}&count=100".format(uid = user_id)
         return self._call_api(url)[1:] # drop first element since it's a count of user albums
@@ -188,6 +193,42 @@ class VkDownloader:
             t_dest = dest
             if "album" in t:
                 t_dest = os.path.join(dest, albums.get(int(t["album"]), "."))
+
+            self.download_track(t['url'], t_dest, t_name)
+
+        print("All music is up to date")
+
+
+    def loadpost(self, user, dest, src):
+        access_token, current_user_id = self.auth()
+        uid = user or self.user_id
+
+        post_id = re.match(r'.*wall(.*)', src).groups()[0]
+        assert post_id, 'no post id found'
+
+        posts = self.get_post_tracks_metadata(post_id)
+        assert len(posts) == 1, "can't find the post"
+
+        tracks = list(
+            map(lambda t: t['audio'],
+            filter(lambda a: a['type'] == 'audio',
+            posts[0].get('attachments')
+            )))
+
+        assert len(tracks) > 0, 'no music found'
+
+        dest = os.path.expanduser(os.path.join(dest, post_id))
+        if dest and not os.path.exists(dest):
+            os.makedirs(dest)
+
+        total = len(tracks)
+        print("Found {} tracks for {}".format(total, uid))
+
+        for i, t in enumerate(tracks):
+            t_name = self.get_track_full_name(t)
+            print("Downloading {} of {}: {}".format(i + 1, total, t_name))
+
+            t_dest = dest
 
             self.download_track(t['url'], t_dest, t_name)
 
